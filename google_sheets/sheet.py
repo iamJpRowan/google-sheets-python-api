@@ -55,6 +55,16 @@ class Sheet:
             spreadsheetId=self.spreadsheet.id_, range=range_, body=value_range_body,
             valueInputOption=valueInputOption).execute()
 
+    def delete_rows(self, start_index=None, end_index=None):
+        value_range_body = {
+            "sheetId": self.id_,
+            "dimension": 'ROWS',
+            "startIndex": start_index,
+            "endIndex": end_index,
+        }
+        requests = [{"deleteDimension": {"range": value_range_body}}]
+        return self.spreadsheet.batch_update(requests)
+
     def determine_range(self, start, rows):
         start_column = self.a1[''.join(re.findall("[a-zA-Z]+", start))]
         end_column = self.a1[start_column + max(len(l) for l in rows)]
