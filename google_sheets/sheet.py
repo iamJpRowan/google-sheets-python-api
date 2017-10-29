@@ -22,12 +22,15 @@ class Sheet:
             self.update_rows('A1', self.headers)
             self.spreadsheet.sheets[self.title] = self
         self.id_ = self.properties['sheetId']
+        self.columnCount = self.properties['gridProperties'].get('columnCount')
+        self.frozenRowCount = self.properties['gridProperties'].get(
+            'frozenRowCount')
+        self.rowCount = self.properties['gridProperties'].get('rowCount')
 
         # Attach the Sheet object to the SpreadSheet
         self.spreadsheet.sheet_ids.append(self.id_)
         self.spreadsheet.sheet_titles.append(self.title)
         self.link = '{}/edit#gid={}'.format(self.spreadsheet.link, self.id_)
-
 
     def create_properties(self):
         return {
