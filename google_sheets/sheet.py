@@ -19,18 +19,36 @@ class Sheet:
                     "properties": self.create_properties()
                 }
             })['replies'][0]['addSheet']['properties']
-            self.update_rows('A1', self.headers)
+            # Write the header rows
+            self.update_values('A1', self.headers)
+            # Add new sheet object to Spreadsheet
             self.spreadsheet.sheets[self.title] = self
-        self.id_ = self.properties['sheetId']
-        self.columnCount = self.properties['gridProperties'].get('columnCount')
-        self.frozenRowCount = self.properties['gridProperties'].get(
-            'frozenRowCount')
-        self.rowCount = self.properties['gridProperties'].get('rowCount')
 
-        # Attach the Sheet object to the SpreadSheet
-        self.spreadsheet.sheet_ids.append(self.id_)
-        self.spreadsheet.sheet_titles.append(self.title)
+        # Add more attributes to sheet object
+        self.id_ = self.properties['sheetId']
         self.link = '{}/edit#gid={}'.format(self.spreadsheet.link, self.id_)
+
+    def columnCount(self):
+        return self.properties['gridProperties'].get('columnCount')
+
+    def frozenColumnCount(self):
+        return self.properties['gridProperties'].get('frozenColumnCount')
+
+    def frozenRowCount(self):
+        return self.properties['gridProperties'].get('frozenRowCount')
+
+    def rowCount(self):
+        return self.properties['gridProperties'].get('rowCount')
+
+    def add_dimension(self, amount, dimension):
+        request = {
+            "appendDimension": {
+                "sheetId": self.id_,
+                "dimension": dimension,
+                "length": amount
+            }
+        }
+        self.spreadsheet .batch_update([request])
 
     def create_properties(self):
         return {
@@ -44,21 +62,34 @@ class Sheet:
             "title": self.title
         }
 
-    def update_rows(self, start, rows, valueInputOption='USER_ENTERED'):
-        range_ = self.determine_range(start, rows)
+    def update_values(self, start, values, dimension='ROWS', valueInputOption='USER_ENTERED'):
+        """ Updates the sheet with new array of values
+
+        PARAMETERS:
+            start: the 'A1' style position to start from
+            dimension: Should be either ROWS or COLUMNS
+            values: An array of array to be used as either columns or rows"""
+        range_ = self.determine_range(start, values)
         value_range_body = {
             "range": range_,
-            "majorDimension": 'ROWS',
-            "values": rows,
+            "majorDimension": dimension,
+            "values": values,
         }
         return self.spreadsheet.service.spreadsheets().values().update(
             spreadsheetId=self.spreadsheet.id_, range=range_, body=value_range_body,
             valueInputOption=valueInputOption).execute()
 
-    def delete_rows(self, start_index=None, end_index=None):
+    def refresh_properties(self):
+        response = self.spreadsheet.service.spreadsheets().get(
+            spreadsheetId=self.spreadsheet.id_).execute()
+        for sheet in response['sheets']:
+            if sheet['properties']['sheetId'] == self.id_:
+                self.properties = (sheet['properties'])
+
+    def delete_values(self, start_index=None, end_index=None, dimension='ROWS'):
         value_range_body = {
             "sheetId": self.id_,
-            "dimension": 'ROWS',
+            "dimension": dimension,
             "startIndex": start_index,
             "endIndex": end_index,
         }
