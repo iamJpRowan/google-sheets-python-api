@@ -25,6 +25,7 @@ def main():
     if args.action == 'properties':
         get_properties(args)
 
+
 def get_properties(args):
     """Prints the properties of a Google Sheet"""
     spreadsheet = Spreadsheet(args.spreadsheet_id)
@@ -38,23 +39,30 @@ def arg_parser():
     parser = argparse.ArgumentParser(prog='Google Sheets CLI')
     subparsers = parser.add_subparsers(
         help='Actions to perform', dest='action')
+    # Add subparsers to arg parse
+    properties_args(subparsers)
+    values_args(subparsers)
 
-    # create the parser for the "properties" command
+    return parser.parse_args()
+
+
+def properties_args(subparsers):
+    """create the parser for the "properties" command"""
     properties = subparsers.add_parser('properties',
                                        help='get the properties of a spreadsheet or a sheet within')
     properties.add_argument("spreadsheet_id")
     properties.add_argument('-s', "--sheet_name",
                             default=None)
 
-    # create the parser for the "values" command
+
+def values_args(subparsers):
+    """create the parser for the "values" command"""
     values = subparsers.add_parser('values',
                                    help='Get values from a sheet')
     values.add_argument("spreadsheet_id")
     values.add_argument('-s', "--sheet_name",
                         default=None, required=True)
     values.add_argument('-r', "--range", default=None)
-
-    return parser.parse_args()
 
 
 if __name__ == "__main__":
