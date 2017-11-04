@@ -29,7 +29,7 @@ setup(
     scripts=scripts,
     # dependencies (to be automatically installed or updated)
     install_requires=[
-        'httplib2',
+        'google-api-python-client',
         'apiclient',
         'oauth2client',
     ]
