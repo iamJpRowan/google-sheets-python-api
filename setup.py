@@ -16,7 +16,7 @@ def list_of_files_in_directory(path):
 scripts = list_of_files_in_directory('bin')
 
 setup(
-    name='Google Sheets Python Library',
+    name='google-sheets-python',
     version='0.1dev',
     long_description=open('README.md').read(),
     author="Jp Rowan",
@@ -32,5 +32,9 @@ setup(
         'google-api-python-client',
         'apiclient',
         'oauth2client',
+        'dev-tools==0.1dev',
+    ],
+    dependency_links=[
+        'https://github.com/LiveSlowSkateFast/dev-tools/tarball/master#egg=dev-tools-0.1dev',
     ]
 )
